@@ -97,10 +97,12 @@ class SaliencyModel(Module):
         if labels==None: print("no labels provided!")
         one_hot_labels = F.one_hot(labels, self.num_classes)
         image_one_hot_labels = one_hot_labels[:, :, None, None]
-        image_one_hot_labels = image_one_hot_labels.repeat(1, 1, 224, 224)
+        # image_one_hot_labels = image_one_hot_labels.repeat(1, 1, 224, 224)
         if self.fix_encoder:
             out = [e.detach() for e in out]
-        out[0] = torch.cat([out[0].detach(), image_one_hot_labels], dim=1)
+
+        out = [torch.cat([e.detach(), image_one_hot_labels.repeat(1, 1, e.size()[2], e.size()[3])]) for e in out]
+        # out[0] = torch.cat([out[0].detach(), image_one_hot_labels], dim=1)
 
         down = self.encoder_scales
         main_flow = out[down]
