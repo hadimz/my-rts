@@ -103,7 +103,7 @@ class SaliencyModel(Module):
         
         for e in out:
             print(e.size())
-        out = [torch.cat([e, image_one_hot_labels.repeat(1, 1, e.size()[3], e.size()[4])], dim=1) for e in out]
+        out = [torch.cat([e, image_one_hot_labels.repeat(1, 1, e.size()[3], e.size()[4])], dim=1) for e in out if len(e.size()>2) else e]
         # out[0] = torch.cat([out[0].detach(), image_one_hot_labels], dim=1)
 
         down = self.encoder_scales
