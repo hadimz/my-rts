@@ -58,7 +58,7 @@ class SaliencyModel(Module):
         self.allow_selector = allow_selector
 
         if self.allow_selector:
-            s = encoder_base*2**encoder_scales + self.num_classes
+            s = encoder_base*2**encoder_scales
             self.selector_module = nn.Embedding(num_classes, s)
             self.selector_module.weight.data.normal_(0, 1./s**0.5)
 
@@ -96,14 +96,14 @@ class SaliencyModel(Module):
         out = self.encoder(_images)
         if labels==None: print("no labels provided!")
         one_hot_labels = F.one_hot(labels, self.num_classes)
-        image_one_hot_labels = one_hot_labels[:, :, None, None]
+        image_one_hot_labels = one_hot_labels[:, :]
         # image_one_hot_labels = image_one_hot_labels.repeat(1, 1, 224, 224)
         if self.fix_encoder:
             out = [e.detach() for e in out]
         
         for e in out:
             print(e.size())
-        out = [torch.cat([e, image_one_hot_labels.repeat(1, 1, e.size()[2], e.size()[3])], dim=1) if len(e.size())>2 else e for e in out]
+        out = [torch.cat([e, image_one_hot_labels.repeat(1, e.size()[1])], dim=1) if len(e.size())<3 else e for e in out]
         # out[0] = torch.cat([out[0].detach(), image_one_hot_labels], dim=1)
 
         down = self.encoder_scales
@@ -112,7 +112,7 @@ class SaliencyModel(Module):
         if self.allow_selector:
             assert _selectors is not None
             em = torch.squeeze(self.selector_module(_selectors.view(-1, 1)), 1)
-            act = torch.sum(main_flow*em.view(-1, 2048+self.num_classes, 1, 1), 1, keepdim=True)
+            act = torch.sum(main_flow*em.view(-1, 2048, 1, 1), 1, keepdim=True)
             th = torch.sigmoid(act-model_confidence)
             main_flow = main_flow*th
 
