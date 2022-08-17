@@ -99,7 +99,7 @@ class SaliencyModel(Module):
         one_hot_labels = F.one_hot(labels, self.num_classes)
         image_one_hot_labels = one_hot_labels[:, :, None, None]
         image_one_hot_labels = image_one_hot_labels.repeat(1, 1, 224, 224)
-        out = [torch.cat([e.detach(), image_one_hot_labels], dim=1) for e in out]
+        out[0] = torch.cat([out[0].detach(), image_one_hot_labels], dim=1)
 
         if self.fix_encoder:
             out = [e.detach() for e in out]
