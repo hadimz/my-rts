@@ -94,7 +94,7 @@ class SaliencyModel(Module):
     def forward(self, _images, _selectors=None, pt_store=None, model_confidence=0., labels=None):
         # forward pass through the encoder
         out = self.encoder(_images)
-        
+        print(type(out))
         if labels==None: print("no labels provided!")
         one_hot_labels = F.one_hot(labels, self.num_classes)
         image_one_hot_labels = one_hot_labels[:, :, None, None]
