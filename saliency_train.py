@@ -87,9 +87,9 @@ def phase2_visualise(s):
 
 
 nt_phase1 = NiceTrainer(ev_phase1,
-                dts.get_loader(train_dts, batch_size=128),
+                dts.get_loader(train_dts, batch_size=32),
                 optim_phase1,
-                val_dts=dts.get_loader(val_dts, batch_size=128),
+                val_dts=dts.get_loader(val_dts, batch_size=32),
                 modules=[saliency],
                 printable_vars=['loss', 'exists_accuracy'],
                 events=[lr_step_phase1,],
