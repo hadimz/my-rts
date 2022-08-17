@@ -112,7 +112,7 @@ class SaliencyModel(Module):
         if self.allow_selector:
             assert _selectors is not None
             em = torch.squeeze(self.selector_module(_selectors.view(-1, 1)), 1)
-            act = torch.sum(main_flow*em.view(-1, 2048+self.num_classes, 1, 1), 1, keepdim=True)
+            act = torch.sum(main_flow*em.view(-1, 2048, 1, 1), 1, keepdim=True)
             th = torch.sigmoid(act-model_confidence)
             main_flow = main_flow*th
 
