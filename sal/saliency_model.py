@@ -58,7 +58,7 @@ class SaliencyModel(Module):
         self.allow_selector = allow_selector
 
         if self.allow_selector:
-            s = encoder_base*2**encoder_scales
+            s = encoder_base*2**encoder_scales + self.num_classes
             self.selector_module = nn.Embedding(num_classes, s)
             self.selector_module.weight.data.normal_(0, 1./s**0.5)
 
@@ -112,7 +112,7 @@ class SaliencyModel(Module):
         if self.allow_selector:
             assert _selectors is not None
             em = torch.squeeze(self.selector_module(_selectors.view(-1, 1)), 1)
-            act = torch.sum(main_flow*em.view(-1, 2048, 1, 1), 1, keepdim=True)
+            act = torch.sum(main_flow*em.view(-1, 2048+self.num_classes, 1, 1), 1, keepdim=True)
             th = torch.sigmoid(act-model_confidence)
             main_flow = main_flow*th
 
