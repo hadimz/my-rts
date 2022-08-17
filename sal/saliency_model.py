@@ -33,7 +33,7 @@ class SaliencyModel(Module):
         self.encoder_scales = encoder_scales
         self.fix_encoder = fix_encoder
         self.use_simple_activation = use_simple_activation
-
+        self.num_classes = num_classes
         # now build the decoder for the specified number of scales
         # start with the top scale
         down = self.encoder_scales
@@ -91,9 +91,16 @@ class SaliencyModel(Module):
         unwanted = self.encoder.parameters()
         return set(all_params) - set(unwanted) - (set(self.selector_module.parameters()) if self.allow_selector else set([]))
 
-    def forward(self, _images, _selectors=None, pt_store=None, model_confidence=0.):
+    def forward(self, _images, _selectors=None, pt_store=None, model_confidence=0., labels=None):
         # forward pass through the encoder
         out = self.encoder(_images)
+        
+        if labels==None: print("no labels provided!")
+        one_hot_labels = F.one_hot(labels, self.num_classes)
+        image_one_hot_labels = one_hot_labels[:, :, None, None]
+        image_one_hot_labels = image_one_hot_labels.repeat(1, 1, 224, 224)
+        out = torch.cat([out, image_one_hot_labels], dim=1)
+
         if self.fix_encoder:
             out = [e.detach() for e in out]
 
