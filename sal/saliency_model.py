@@ -126,7 +126,7 @@ class SaliencyModel(Module):
 
         a = torch.abs(saliency_chans[:,0,:,:])
         b = torch.abs(saliency_chans[:,1,:,:])
-        print(exists_logits.size())
+        print(exists_logits[0][0].size())
         return torch.unsqueeze(a/(a+b), dim=1), exists_logits, out[-1]
 
 
