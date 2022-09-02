@@ -134,6 +134,7 @@ class SaliencyModel(Module):
         print(exists_logits[0][0].size())
         print(exists_logits[0][1].size())
         print(out[-1].size())
+        print(exists_logits)
         print('****************************')
         return torch.unsqueeze(a/(a+b), dim=1), exists_logits, out[-1]
 
