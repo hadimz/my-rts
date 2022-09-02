@@ -128,16 +128,8 @@ class SaliencyModel(Module):
         a = torch.abs(saliency_chans[:,0,:,:])
         b = torch.abs(saliency_chans[:,1,:,:])
         masks = torch.unsqueeze(a/(a+b), dim=1)
-        print('')
-        print('****************************')
-        print('Printing tensor shapes:')
-        print(exists_logits.size())
-        print(exists_logits[0].size())
-        print(exists_logits[0][0].size())
-        print(exists_logits[0][1].size())
-        print(out[-1].size())
-        print(masks.size())
-        print('****************************')
+        masks = masks[:,:,::2, ::2]
+        masks = F.upsample(masks, (56, 56), mode='bilinear')
         return masks, exists_logits, out[-1]
 
 
