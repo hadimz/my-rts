@@ -33,7 +33,7 @@ class SaliencyModel(Module):
         self.encoder_scales = encoder_scales
         self.fix_encoder = fix_encoder
         self.use_simple_activation = use_simple_activation
-        self.num_classes = num_classes
+
         # now build the decoder for the specified number of scales
         # start with the top scale
         down = self.encoder_scales
@@ -91,22 +91,12 @@ class SaliencyModel(Module):
         unwanted = self.encoder.parameters()
         return set(all_params) - set(unwanted) - (set(self.selector_module.parameters()) if self.allow_selector else set([]))
 
-    def forward(self, _images, _selectors=None, pt_store=None, model_confidence=0., labels=None):
+    def forward(self, _images, _selectors=None, pt_store=None, model_confidence=0.):
         # forward pass through the encoder
         out = self.encoder(_images)
-        if labels==None: print("no labels provided!")
-        one_hot_labels = F.one_hot(labels, self.num_classes)
-        image_one_hot_labels = one_hot_labels[:, :]
-        # image_one_hot_labels = image_one_hot_labels.repeat(1, 1, 224, 224)
         if self.fix_encoder:
             out = [e.detach() for e in out]
-        
-        # for e in out:
-        #     print(e.size())
-        out = [torch.cat([e, image_one_hot_labels], dim=1) if len(e.size())<3 else e for e in out]
-        # out[0] = torch.cat([out[0].detach(), image_one_hot_labels], dim=1)
-        # for e in out:
-        #     print(e.size())
+
         down = self.encoder_scales
         main_flow = out[down]
 
@@ -173,13 +163,13 @@ class SaliencyLoss:
         smoothness_loss = calc_smoothness_loss(_masks)
         sigmoid_loss = -0.5 + torch.mean(torch.sigmoid(100*_masks.clone()))
 
-        _masks2, _, _ = _model(_images, _targets, labels=_targets)
+        _masks2, _, _ = _model(_images, _targets)
         if _masks2.size()[-2:] != _images.size()[-2:]:
             _masks2 = F.upsample(_masks2, (_images.size(2), _images.size(3)), mode='bilinear')
         fidelity_loss = torch.mean(torch.abs(_masks-_masks2))
         # total_loss = fidelity_loss + sigmoid_loss + destroyer_loss + self.area_loss_coef*area_loss + self.smoothness_loss_coef*smoothness_loss + self.preserver_loss_coef*preserver_loss
-        total_loss = 0.01*fidelity_loss + 0.000001*sigmoid_loss + self.area_loss_coef*area_loss + self.preserver_loss_coef*preserver_loss
-        # total_loss = total_loss*0.01
+        total_loss = fidelity_loss + 0.000001*sigmoid_loss + self.area_loss_coef*area_loss + self.preserver_loss_coef*preserver_loss
+
         if pt_store is not None:
             # add variables to the pt_store
             pt_store(masks=_masks)
