@@ -1,3 +1,4 @@
+from sal.utils import mask
 from sal.utils.pytorch_fixes import *
 from torch.nn import functional as F
 import torch.nn as nn
@@ -126,6 +127,7 @@ class SaliencyModel(Module):
 
         a = torch.abs(saliency_chans[:,0,:,:])
         b = torch.abs(saliency_chans[:,1,:,:])
+        masks = torch.unsqueeze(a/(a+b), dim=1)
         print('')
         print('****************************')
         print('Printing tensor shapes:')
@@ -134,9 +136,9 @@ class SaliencyModel(Module):
         print(exists_logits[0][0].size())
         print(exists_logits[0][1].size())
         print(out[-1].size())
-        print(exists_logits)
+        print(masks.size())
         print('****************************')
-        return torch.unsqueeze(a/(a+b), dim=1), exists_logits, out[-1]
+        return masks, exists_logits, out[-1]
 
 
 

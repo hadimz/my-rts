@@ -18,16 +18,11 @@ WARN_TEMPLATE = '\033[38;5;1mWARNING: %s\033[0m\n'
 
 # assert torch.cuda.is_available(), 'CUDA must be available'
 
-
-
 from .pt_store import PTStore, to_number, to_numpy
 PT = PTStore()
 BATCHES_DONE_INFO = '{batches_done}/{batches_per_epoch}'
 TIME_INFO = 'time: {comp_time:.3f} - data: {data_time:.3f} - ETA: {eta:.0f}'
 SPEED_INFO = 'e/s: {examples_per_sec:.1f}'
-
-
-
 
 def smoothing_dict_update(main, update, smooth_coef):
     for k, v in update.items():
@@ -233,7 +228,7 @@ class NiceTrainer:
             # --------------------------- OPTIMIZATION STEP ------------------------------------
             if is_training:
                 self.optimizer.zero_grad()
-
+                
             self.forward_step(batch)
             loss = getattr(self.pt_store, self.loss_name)
 
