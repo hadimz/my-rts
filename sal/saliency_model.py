@@ -126,11 +126,13 @@ class SaliencyModel(Module):
 
         a = torch.abs(saliency_chans[:,0,:,:])
         b = torch.abs(saliency_chans[:,1,:,:])
+        print('')
         print('****************************')
         print('Printing tensor shapes:')
         print(exists_logits.size())
         print(exists_logits[0].size())
         print(exists_logits[0][0].size())
+        print(exists_logits[0][1].size())
         print(out[-1].size())
         print('****************************')
         return torch.unsqueeze(a/(a+b), dim=1), exists_logits, out[-1]
